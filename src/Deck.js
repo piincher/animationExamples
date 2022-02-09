@@ -13,7 +13,11 @@ const Deck = ({ data, renderCard }) => {
     })
   ).current;
   const getCardStyle = () => {
-    return { ...position.getLayout(), transform: [{ rotate: "45deg" }] };
+    const rotate = position.x.interpolate({
+      inputRange: [-500, 0, 500],
+      outputRange: ["-120deg", "0deg", "120deg"],
+    });
+    return { ...position.getLayout(), transform: [{ rotate }] };
   };
   const renderCards = () => {
     return data.map((item, idx) => {
