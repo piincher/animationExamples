@@ -9,9 +9,17 @@ const Deck = ({ data, renderCard }) => {
       onPanResponderMove: (event, gestureState) => {
         position.setValue({ x: gestureState.dx, y: gestureState.dy });
       },
-      onPanResponderRelease: () => {},
+      onPanResponderRelease: () => {
+        resetPosition();
+      },
     })
   ).current;
+
+  const resetPosition = () => {
+    Animated.spring(position, {
+      toValue: { x: 0, y: 0 },
+    }).start();
+  };
   const getCardStyle = () => {
     const rotate = position.x.interpolate({
       inputRange: [-SCREEN_WIDTH * 1.5, 0, SCREEN_WIDTH * 1.5],
