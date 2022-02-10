@@ -2,7 +2,9 @@ import React, { useRef } from "react";
 import { Text, View, Animated, PanResponder, Dimensions } from "react-native";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
+const SWIPE_OUT_ANIMATION = 250;
 const Deck = ({ data, renderCard }) => {
+  const [index, setIndex] = React.useState(0);
   const position = useRef(new Animated.ValueXY()).current;
   const panResponder = useRef(
     PanResponder.create({
@@ -12,9 +14,9 @@ const Deck = ({ data, renderCard }) => {
       },
       onPanResponderRelease: (event, gesture) => {
         if (gesture.dx > SWIPE_THRESHOLD) {
-          console.log("SWIPE RIGHT");
+          forceSwipe("right");
         } else if (gesture.dx < -SWIPE_THRESHOLD) {
-          console.log("swipe left");
+          forceSwipe("left");
         } else {
           resetPosition();
         }
@@ -22,9 +24,27 @@ const Deck = ({ data, renderCard }) => {
     })
   ).current;
 
+  const forceSwipe = (direction) => {
+    const x = direction === "right" ? SCREEN_WIDTH : -SCREEN_WIDTH;
+    Animated.timing(position, {
+      toValue: {
+        x,
+        y: 0,
+      },
+      duration: SWIPE_OUT_ANIMATION,
+      useNativeDriver: false,
+    }).start(() => {});
+  };
+
+  const onSwipeCompleted = (direction) => {
+    const { onSwipeLeft, onSwipeRight } = props;
+    const item = data[index];
+    direction === "right" ? onSwipeRight(item) : -onSwipeLeft(item);
+  };
   const resetPosition = () => {
     Animated.spring(position, {
       toValue: { x: 0, y: 0 },
+      useNativeDriver: true,
     }).start();
   };
   const getCardStyle = () => {
@@ -55,3 +75,7 @@ const Deck = ({ data, renderCard }) => {
 };
 
 export default Deck;
+Deck.defaultProps = {
+  onSwipeRight: () => {},
+  onSwipeLeft: () => {},
+};
