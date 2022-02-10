@@ -40,6 +40,8 @@ const Deck = ({ data, renderCard }) => {
     const { onSwipeLeft, onSwipeRight } = props;
     const item = data[index];
     direction === "right" ? onSwipeRight(item) : -onSwipeLeft(item);
+    position.setValue({ x: 0, y: 0 });
+    setIndex(index + 1);
   };
   const resetPosition = () => {
     Animated.spring(position, {
