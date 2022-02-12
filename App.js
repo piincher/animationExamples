@@ -61,7 +61,12 @@ export default function App() {
   };
   return (
     <View style={styles.container}>
-      <Deck renderCard={renderCard} data={DATA} />
+      <Deck
+        renderCard={renderCard}
+        data={DATA}
+        onSwipeLeft={() => {}}
+        onSwipeRight={() => {}}
+      />
     </View>
   );
 }

@@ -3,7 +3,7 @@ import { Text, View, Animated, PanResponder, Dimensions } from "react-native";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 const SWIPE_OUT_ANIMATION = 250;
-const Deck = ({ data, renderCard }) => {
+const Deck = ({ data, renderCard, onSwipeLeft, onSwipeRight }) => {
   const [index, setIndex] = React.useState(0);
   const position = useRef(new Animated.ValueXY()).current;
   const panResponder = useRef(
@@ -33,14 +33,16 @@ const Deck = ({ data, renderCard }) => {
       },
       duration: SWIPE_OUT_ANIMATION,
       useNativeDriver: false,
-    }).start(() => {});
+    }).start(() => {
+      onSwipeCompleted(direction);
+    });
   };
 
   const onSwipeCompleted = (direction) => {
-    const { onSwipeLeft, onSwipeRight } = props;
     const item = data[index];
     direction === "right" ? onSwipeRight(item) : -onSwipeLeft(item);
     position.setValue({ x: 0, y: 0 });
+    resetPosition();
     setIndex(index + 1);
   };
   const resetPosition = () => {
@@ -57,8 +59,12 @@ const Deck = ({ data, renderCard }) => {
     return { ...position.getLayout(), transform: [{ rotate }] };
   };
   const renderCards = () => {
+    if (index >= data.length) {
+      return renderNoMoreCard();
+    }
     return data.map((item, idx) => {
-      if (idx === 0) {
+      if (idx < index) return null;
+      if (idx === index) {
         return (
           <Animated.View
             key={item.id}
@@ -74,6 +80,10 @@ const Deck = ({ data, renderCard }) => {
     });
   };
   return <View>{renderCards()}</View>;
+};
+
+const renderNoMoreCard = () => {
+  return <Text> no more card</Text>;
 };
 
 export default Deck;
